@@ -1,18 +1,31 @@
 const express = require('express');
+const cors = require('cors');
 const db = require('./data/db');
 
 const port = 5555;
 const server = express();
 server.use(express.json());
+server.use(cors({ origin: 'http://localhost:3000' }));
 
 const sendUserError = (status, message, res) => {
   res.status(status).json({ errorMessage: message });
   return;
 };
 
-server.get('/:id', (req, res) => {
-  const { id } = req.params;
-  console.log(id);
+const customLogger = (req, res, next) => {
+  const ua = req.headers['user-agent'];
+  console.log(req.headers);
+  const { path } = req;
+  const timeStamp = Date.now();
+  const log = { path, ua, timeStamp };
+  const stringLog = JSON.stringify(log);
+  console.log(stringLog);
+  next(); // very important to move onto next routeHandler
+};
+
+server.use(customLogger);
+
+server.get('/', (req, res) => {
   // 1st arg: route where a resource can be interacted with
   // 2nd arg: callback to deal with sending responses, and handling incoming data.
   res.send('Hello from express');
