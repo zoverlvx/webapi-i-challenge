@@ -66,6 +66,28 @@ server.delete("/api/users/:id", (req, res) => {
 		}).catch(({code, message}) => {
 	res.status(code).json({success: false, message})
 		});
+});
+
+// PUT by id
+server.put("/api/users/:id", (req, res) => {
+	const {id} = req.params;
+	const changes = req.body;
+
+	db
+		.update(id, changes)
+		.then(updated => {
+			if (updated) {
+				res.status(200).json({success: true, updated});
+			}
+			if (!updated) {
+				res.status(404).json({
+					success: false,
+					message: "Cannot find user to update"
+				});
+			}
+		}).catch(({code, message}) => {
+			res.status(code).json({success: false, message});
+		})
 })
 
 server.listen(PORT, () => {
